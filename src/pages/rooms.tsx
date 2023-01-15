@@ -101,7 +101,6 @@ const Rooms: NextPage = () => {
       setUsername(username);
     }
     getRoomList().then(data => {
-      console.log(data);
       setRooms(data.data);
     })
   }, []);
