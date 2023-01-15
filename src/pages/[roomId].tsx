@@ -12,12 +12,19 @@ import RtcClient from "../utils/rtc";
 import MicIcon from '@mui/icons-material/Mic';
 import MicOffIcon from '@mui/icons-material/MicOff';
 
+type StageProps = {
+    performer: string | null
+}
 
-const Stage = () => {
+const Stage = ({ performer}: StageProps) => {
     return (
         <>
             <div className='stage'>
-                <Profile />
+                {
+                    !performer ?
+                    null :
+                    <Profile name={performer} />
+                }
             </div>
 
             <style jsx>{`
@@ -80,6 +87,10 @@ const RoomPage: NextPage = () => {
 
     const [isMuted, setIsMuted] = useState<boolean>(true);
 
+    const [phase, setPhase] = useState<'READY' | 'PERFORMING' | 'CHATTING'>('CHATTING');
+    const [performer, setPerformer] = useState<string | null>(null);
+
+
     useEffect(() => {
         const username = localStorage.getItem('username');
         console.log(router.query);
@@ -131,10 +142,12 @@ const RoomPage: NextPage = () => {
     return (
         <div>
             <Header username={username} />
-            <Stage />
+            <Stage performer={performer} />
             <Audience members={members} />
 
-            <div className="light">
+            <div className="light" style={{
+                opacity: phase=='READY' ? 0.7 : 0
+            }}>
             </div>
 
             <div className="controls">
@@ -176,7 +189,6 @@ const RoomPage: NextPage = () => {
                     position: fixed;
                     top: 0;
                     left: 0;
-                    opacity: 0.2;
                 }
             `}</style>
         </div>
