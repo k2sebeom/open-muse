@@ -1,6 +1,6 @@
 import { NextPage } from "next";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Header from "../components/Header";
 import InputField from "../components/InputField";
 
@@ -16,9 +16,21 @@ const CreatePage: NextPage = () => {
     const [mode, setMode] = useState<'OPEN' | 'SHOW'>('OPEN');
     const [password, setPassword] = useState<string>('');
 
+    const [username, setUsername] = useState<string>('');
+
+    useEffect(() => {
+      const username = localStorage.getItem('username');
+      if(!username) {
+        router.replace('/');
+      }
+      else {
+        setUsername(username);
+      }
+    }, []);
+
     return (
         <div className="background">
-            <Header />
+            <Header username={username} />
 
             <div className="container">
                 <h1>Room Title</h1>
