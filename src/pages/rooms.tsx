@@ -10,6 +10,7 @@ import {
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import InputField from '../components/InputField';
 import RoundButton from '../components/RoundButton';
+import { useRouter } from 'next/router';
 
 type CellProps = {
   children?: React.ReactNode;
@@ -30,13 +31,16 @@ const Cell = ({ children }: CellProps) => {
 };
 
 const Rooms: NextPage = () => {
+  const router = useRouter();
   return (
     <div>
       <Header />
       <div className='tableHeader'>
         <InputField width='300px' placeholder='search' />
         <div style={{ width: 10 }}></div>
-        <RoundButton title='Create' width={120} />
+        <RoundButton title='Create' width={120}  onClick={() => {
+          router.push('/create');
+        }}/>
       </div>
       <div className="tableContainer">
         <Table

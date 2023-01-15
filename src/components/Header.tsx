@@ -1,11 +1,16 @@
+import { useRouter } from 'next/router';
 import React from 'react';
 import Logo from './Logo';
 
 function Header() {
+  const router = useRouter();
+
   return (
     <>
       <div>
-        <Logo fontSize={30} />
+        <Logo fontSize={30} onClick={() => {
+          router.push('/');
+        }}/>
         <p>Welcome</p>
       </div>
       <style jsx>{`
