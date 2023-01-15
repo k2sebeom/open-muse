@@ -10,7 +10,14 @@ type InputFieldProps = {
   fontSize?: number;
 };
 
-function InputField({ fontSize = 20, width='100%', height='50px', placeholder, value, onChange }: InputFieldProps) {
+function InputField({
+  fontSize = 20,
+  width = '100%',
+  height = '50px',
+  placeholder,
+  value,
+  onChange,
+}: InputFieldProps) {
   return (
     <>
       <input
@@ -24,7 +31,7 @@ function InputField({ fontSize = 20, width='100%', height='50px', placeholder, v
         }}
         style={{
           width: width,
-          height: height
+          height: height,
         }}
       />
       <style jsx>{`

@@ -1,12 +1,15 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import Image from 'next/image';
+import { useRouter } from 'next/router';
 import InputField from '../components/InputField';
 import Logo from '../components/Logo';
 import RoundButton from '../components/RoundButton';
 import styles from '../styles/Home.module.css';
 
 const Home: NextPage = () => {
+  const router = useRouter();
+
   return (
     <div className={styles.fullwindow}>
       <Head>
@@ -14,20 +17,19 @@ const Home: NextPage = () => {
         <meta name="description" content="Live Performance with OpenMuse" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <div className='center'>
+      <div className="center">
         <Logo />
         <p>Join Now</p>
-        <InputField
-          placeholder='email'
-        />
-        <InputField
-          placeholder='nickname'
-        />
+        <InputField placeholder="email" />
+        <InputField placeholder="nickname" />
 
         <RoundButton
-          title='Enter'
-          backgroundColor='#6700FF'
+          title="Enter"
+          backgroundColor="#6700FF"
           width={250}
+          onClick={() => {
+            router.push('/rooms');
+          }}
         />
       </div>
       <style jsx>{`
