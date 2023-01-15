@@ -44,6 +44,7 @@ function Profile({ size = 50, name = "PRofile" }: ProfileProps) {
                 h2 {
                     margin-top: 10px;
                     margin-bottom: 0px;
+                    font-size: 14px;
                 }
             `}</style>
 

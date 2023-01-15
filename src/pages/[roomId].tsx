@@ -2,10 +2,11 @@ import { Grid } from "@mui/material";
 import { NextPage } from "next";
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
+import { io, Socket } from "socket.io-client";
 import Header from "../components/Header";
 import Profile from "../components/Profile";
 import RoundButton from "../components/RoundButton";
-import { joinRoom } from "../lib/api";
+import { BASE_URL, joinRoom } from "../lib/api";
 import RtcClient from "../utils/rtc";
 
 const Stage = () => {
@@ -31,22 +32,27 @@ const Stage = () => {
     )
 }
 
-const Audience = () => {
+type AudienceProps = {
+    members: string[]
+}
+
+const Audience = ({members }: AudienceProps) => {
     return (
         <>
             <Grid
                 sx={{
                     pt: 10,
-                    px: 3
+                    px: '10%'
                 }}
                 container
-                spacing={{ xs: 3, md: 10}}
-                columns={{ xs: 4, sm: 5, md: 20}}    
+                spacing={{ xs: 20, md: 20}}
+                columns={{ xs: 3, sm: 5, md: 20}}    
             >
                 {
-                    [1, 2, 3, 4,5, 6, 7, 9, 2, 2, 2, 2, 2, 2, 2].map((_, i) => ((
+                    
+                    members.map((username, i) => ((
                         <Grid item xs={1} md={2} key={`audience-${i}`}>
-                            <Profile />
+                            <Profile name={username} />
                         </Grid>
                     )))
                 }
@@ -63,7 +69,10 @@ const RoomPage: NextPage = () => {
     const { roomId, pw } = router.query;
     const [username, setUsername] = useState<string>('');
 
+    const [members, setMembers] = useState<string[]>([]);
+
     const rtcClient = useRef<RtcClient>(new RtcClient());
+    const socket = useRef<Socket | null>(null);
 
     useEffect(() => {
         const username = localStorage.getItem('username');
@@ -73,6 +82,30 @@ const RoomPage: NextPage = () => {
             return;
         }
         setUsername(username);
+
+        if(!socket.current) {
+            socket.current = io(BASE_URL);
+
+            socket.current.on("connect", () => {
+                socket.current?.on('members', (data) => {
+                    console.log(data);
+                    setMembers(data.members);
+                });
+
+                socket.current?.on('join', (data) => {
+                    setMembers(data.members);
+                })
+
+                socket.current?.on('leave', (data) => {
+                    setMembers(data.members);
+                })
+
+                socket.current?.emit('join', {
+                    id: roomId,
+                    username
+                });
+            })
+        }
 
         if(roomId) {
             joinRoom(roomId as string, username, pw as string).then(async (data) => {
@@ -92,7 +125,7 @@ const RoomPage: NextPage = () => {
         <div>
             <Header username={username} />
             <Stage />
-            <Audience />
+            <Audience members={members} />
 
             <div className="light">
             </div>
