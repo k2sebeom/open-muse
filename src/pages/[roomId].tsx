@@ -46,10 +46,11 @@ const Stage = ({ performer}: StageProps) => {
 }
 
 type AudienceProps = {
-    members: string[]
+    members: string[],
+    performer?: string
 }
 
-const Audience = ({members }: AudienceProps) => {
+const Audience = ({ members , performer }: AudienceProps) => {
     return (
         <>
             <Grid
@@ -63,7 +64,7 @@ const Audience = ({members }: AudienceProps) => {
             >
                 {
                     
-                    members.map((username, i) => ((
+                    members.filter((username) => username !== performer).map((username, i) => ((
                         <Grid item xs={1} md={2} key={`audience-${i}`}>
                             <Profile name={username} />
                         </Grid>
@@ -150,12 +151,20 @@ const RoomPage: NextPage = () => {
                 })
 
                 socket.current?.on('status', data => {
-                    console.log(data);
+                    if(phase === data.status) {
+                        return;
+                    }
                     setPhase(data.status);
-                    if(data.status == 'PERFORMING') {
-                        console.log(room?.liveUrl);
+                    if(data.status === 'PERFORMING') {
                         audioEl.current?.play();
                     }
+                    else if(data.status === 'CHATTING') {
+                        setPerformer(null);
+                    }
+                })
+
+                socket.current?.on('perform', data => {
+                    setPerformer(data.performer);
                 })
 
                 socket.current?.emit('join', {
@@ -170,10 +179,10 @@ const RoomPage: NextPage = () => {
         <div>
             <Header username={username} />
             <Stage performer={performer} />
-            <Audience members={members} />
+            <Audience members={members} performer={performer} />
 
             <div className="light" style={{
-                opacity: phase=='READY' ? 0.8 : 0
+                opacity: phase==='READY' ? 0.8 : 0
             }}>
             </div>
             <ReactHlsPlayer 
@@ -181,6 +190,10 @@ const RoomPage: NextPage = () => {
                 src={room ? room.liveUrl : ''}
                 hlsConfig={{
                     lowLatencyMode: true
+                }}
+                onEnded={() => {
+                    setPerformer('');
+                    setPhase('CHATTING');
                 }}
             />
 
@@ -202,7 +215,12 @@ const RoomPage: NextPage = () => {
                         </RoundButton>
                     )
                 }
-                <RoundButton title='Go on Stage' />
+                <RoundButton onClick={() => {
+                    socket.current?.emit('perform', {
+                        username
+                    });
+                    setPerformer(username);
+                }} title='Go on Stage' />
             </div>
 
             <style jsx>{`
