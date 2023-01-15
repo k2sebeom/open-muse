@@ -11,6 +11,7 @@ import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import InputField from '../components/InputField';
 import RoundButton from '../components/RoundButton';
 import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 
 type CellProps = {
   children?: React.ReactNode;
@@ -32,9 +33,22 @@ const Cell = ({ children }: CellProps) => {
 
 const Rooms: NextPage = () => {
   const router = useRouter();
+
+  const [username, setUsername] = useState<string>('');
+
+  useEffect(() => {
+    const username = localStorage.getItem('username');
+    if(!username) {
+      router.replace('/');
+    }
+    else {
+      setUsername(username);
+    }
+  }, []);
+
   return (
     <div>
-      <Header />
+      <Header username={username} />
       <div className='tableHeader'>
         <InputField width='300px' placeholder='search' />
         <div style={{ width: 10 }}></div>
