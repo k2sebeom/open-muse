@@ -1,11 +1,20 @@
 import { NextPage } from "next";
+import { useRouter } from "next/router";
+import { useState } from "react";
 import Header from "../components/Header";
 import InputField from "../components/InputField";
 
 import RoundButton from "../components/RoundButton";
+import { createRoom } from "../lib/api";
 
 
 const CreatePage: NextPage = () => {
+    const router = useRouter();
+
+    const [title, setTitle] = useState<string>('');
+    const [description, setDescription] = useState<string>('');
+    const [mode, setMode] = useState<'OPEN' | 'SHOW'>('OPEN');
+    const [password, setPassword] = useState<string>('');
 
     return (
         <div className="background">
@@ -14,34 +23,43 @@ const CreatePage: NextPage = () => {
             <div className="container">
                 <h1>Room Title</h1>
                 <InputField
+                    value={title}
+                    onChange={setTitle}
                     placeholder="title"
                 />
 
                 <h1>Room Description</h1>
                 <InputField
-                    placeholder="title"
-                />
-
-                <h1>Room Capacity</h1>
-                <InputField
-                    placeholder="title"
+                    value={description}
+                    onChange={setDescription}
+                    placeholder="description"
                 />
 
                 <h1>Mode</h1>
                 <div>
-                    <RoundButton width={130} title="Open Mic" />
+                    <RoundButton backgroundColor={mode === 'OPEN' ? '#6700FF' : 'gray'} onClick={() => {
+                        setMode('OPEN');
+                    }} width={130} title="Open Mic" />
                     <span>  </span>
-                    <RoundButton width={130} title="Show" />
+                    <RoundButton backgroundColor={mode === 'SHOW' ? '#6700FF' : 'gray'} onClick={() => {
+                        setMode('SHOW');
+                    }} width={130} title="Show" />
                 </div>
 
                 <h1>{'Password (Optional)'}</h1>
                 <InputField
-                    placeholder="title"
+                    value={password}
+                    onChange={setPassword}
+                    placeholder="password"
                 />
 
                 <RoundButton
                     width={200}
                     title="Create"
+                    onClick={async () => {
+                        const room = await createRoom(title, description, mode, password);
+                        router.push('/rooms');
+                    }}
                 />
             </div>
 

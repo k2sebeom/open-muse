@@ -11,3 +11,20 @@ export async function getRoomList() {
     return { data: [] };
   }
 }
+
+
+export async function createRoom(title: string, description: string, mode: 'OPEN' | 'SHOW', password: string) {
+  try {
+    let body = { title, description, mode, password: password.length === 0 ? null : password };
+    const resp = await axios.post(BASE_URL + '/api/room/', body,
+    {
+      headers: {
+        'content-type': 'application/json'
+      }
+    });
+    return resp.data;
+  }
+  catch {
+    return { data: null };
+  }
+}
