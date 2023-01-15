@@ -28,3 +28,21 @@ export async function createRoom(title: string, description: string, mode: 'OPEN
     return { data: null };
   }
 }
+
+export async function joinRoom(roomId: string, username: string, password: string) {
+  try {
+    const resp = await axios.post(BASE_URL + `/api/room/${roomId}/join`, {
+      password,
+      username
+    },
+    {
+      headers: {
+        'content-type': 'application/json'
+      }
+    });
+    return resp.data;
+  }
+  catch {
+    return { data: null };
+  }
+}

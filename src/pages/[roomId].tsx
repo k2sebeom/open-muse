@@ -1,8 +1,11 @@
 import { Grid } from "@mui/material";
 import { NextPage } from "next";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 import Header from "../components/Header";
 import Profile from "../components/Profile";
 import RoundButton from "../components/RoundButton";
+import { joinRoom } from "../lib/api";
 
 const Stage = () => {
     return (
@@ -53,6 +56,27 @@ const Audience = () => {
 }
 
 const RoomPage: NextPage = () => {
+
+    const router = useRouter();
+
+    const { roomId, pw } = router.query;
+
+    useEffect(() => {
+        const username = localStorage.getItem('username');
+        console.log(router.query);
+        if(!username) {
+            router.replace('/');
+            return;
+        }
+        if(roomId) {
+            joinRoom(roomId as string, username, pw as string).then(data => {
+                if(!data.data) {
+                    alert('This is a private room!');
+                    router.replace('/rooms');
+                }
+            });
+        }
+    })
 
     return (
         <div>
