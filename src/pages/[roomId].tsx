@@ -1,11 +1,12 @@
 import { Grid } from "@mui/material";
 import { NextPage } from "next";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Header from "../components/Header";
 import Profile from "../components/Profile";
 import RoundButton from "../components/RoundButton";
 import { joinRoom } from "../lib/api";
+import RtcClient from "../utils/rtc";
 
 const Stage = () => {
     return (
@@ -60,6 +61,9 @@ const RoomPage: NextPage = () => {
     const router = useRouter();
 
     const { roomId, pw } = router.query;
+    const [username, setUsername] = useState<string>('');
+
+    const rtcClient = useRef<RtcClient>(new RtcClient());
 
     useEffect(() => {
         const username = localStorage.getItem('username');
@@ -68,19 +72,25 @@ const RoomPage: NextPage = () => {
             router.replace('/');
             return;
         }
+        setUsername(username);
+
         if(roomId) {
-            joinRoom(roomId as string, username, pw as string).then(data => {
+            joinRoom(roomId as string, username, pw as string).then(async (data) => {
                 if(!data.data) {
                     alert('This is a private room!');
                     router.replace('/rooms');
                 }
+                else {
+                    const room = data.data;
+                    await rtcClient.current.join(room.id, room.rtcToken, username);
+                }
             });
         }
-    })
+    }, []);
 
     return (
         <div>
-            <Header />
+            <Header username={username} />
             <Stage />
             <Audience />
 
@@ -106,7 +116,7 @@ const RoomPage: NextPage = () => {
                     background-color: #000;
                     width: 100vw;
                     height: 100vh;
-                    position: absolute;
+                    position: fixed;
                     top: 0;
                     left: 0;
                     opacity: 0.2;
