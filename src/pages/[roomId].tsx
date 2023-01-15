@@ -9,6 +9,10 @@ import RoundButton from "../components/RoundButton";
 import { BASE_URL, joinRoom } from "../lib/api";
 import RtcClient from "../utils/rtc";
 
+import MicIcon from '@mui/icons-material/Mic';
+import MicOffIcon from '@mui/icons-material/MicOff';
+
+
 const Stage = () => {
     return (
         <>
@@ -74,6 +78,8 @@ const RoomPage: NextPage = () => {
     const rtcClient = useRef<RtcClient>(new RtcClient());
     const socket = useRef<Socket | null>(null);
 
+    const [isMuted, setIsMuted] = useState<boolean>(true);
+
     useEffect(() => {
         const username = localStorage.getItem('username');
         console.log(router.query);
@@ -116,6 +122,7 @@ const RoomPage: NextPage = () => {
                 else {
                     const room = data.data;
                     await rtcClient.current.join(room.id, room.rtcToken, username);
+                    rtcClient.current.setMuted(isMuted);
                 }
             });
         }
@@ -131,6 +138,23 @@ const RoomPage: NextPage = () => {
             </div>
 
             <div className="controls">
+                {
+                    isMuted ? (
+                        <RoundButton backgroundColor="black" onClick={() => {
+                            setIsMuted(false);
+                            rtcClient.current.setMuted(false);
+                        }} width={100} height={50} title="">
+                            <MicOffIcon />
+                        </RoundButton>
+                    ) : (
+                        <RoundButton onClick={() => {
+                            setIsMuted(true);
+                            rtcClient.current.setMuted(true);
+                        }} width={100} height={50} title="">
+                            <MicIcon />
+                        </RoundButton>
+                    )
+                }
                 <RoundButton title='Go on Stage' />
             </div>
 

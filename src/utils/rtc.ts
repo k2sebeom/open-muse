@@ -58,6 +58,10 @@ class RtcClient {
         this.localAudioTrack = await AgoraRTC.createMicrophoneAudioTrack();
         await this.engine.publish(this.localAudioTrack);
     }
+
+    public setMuted(muted: boolean) {
+        this.localAudioTrack?.setMuted(muted);
+    }
 }
 
 

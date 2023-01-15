@@ -7,6 +7,7 @@ type RoundButtonProps = {
   fontSize?: number;
   width?: number;
   height?: number;
+  children?: React.ReactNode
 };
 
 function RoundButton({
@@ -16,10 +17,11 @@ function RoundButton({
   fontSize,
   backgroundColor,
   onClick,
+  children
 }: RoundButtonProps) {
   return (
     <>
-      <button onClick={onClick}>{title}</button>
+      <button onClick={onClick}>{title}{children}</button>
       <style jsx>{`
         button {
           padding: 10px;
