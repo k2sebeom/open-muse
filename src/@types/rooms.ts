@@ -8,7 +8,8 @@ interface Room {
     password?: string,
     members: number,
     streamKey: string,
-    liveUrl: string
+    liveUrl: string,
+    rtcToken?: string
 }
 
 

@@ -6,11 +6,13 @@ import { io, Socket } from "socket.io-client";
 import Header from "../components/Header";
 import Profile from "../components/Profile";
 import RoundButton from "../components/RoundButton";
-import { BASE_URL, joinRoom } from "../lib/api";
+import { BASE_URL, getStudioToken, joinRoom } from "../lib/api";
 import RtcClient from "../utils/rtc";
+import ReactHlsPlayer from "react-hls-player/dist";
 
 import MicIcon from '@mui/icons-material/Mic';
 import MicOffIcon from '@mui/icons-material/MicOff';
+import { Room } from "../@types/rooms";
 
 type StageProps = {
     performer: string | null
@@ -90,6 +92,10 @@ const RoomPage: NextPage = () => {
     const [phase, setPhase] = useState<'READY' | 'PERFORMING' | 'CHATTING'>('CHATTING');
     const [performer, setPerformer] = useState<string | null>(null);
 
+    const [room, setRoom] = useState<Room>();
+
+    const audioEl = useRef<HTMLVideoElement>(null);
+
 
     useEffect(() => {
         const username = localStorage.getItem('username');
@@ -99,6 +105,32 @@ const RoomPage: NextPage = () => {
             return;
         }
         setUsername(username);
+
+        const email = localStorage.getItem('email');
+        if(!email) {
+            router.replace('/');
+            return;
+        }
+        else {
+            // getStudioToken(email).then(data => {
+            //     console.log(data);
+            // })
+        }
+
+        if(roomId) {
+            joinRoom(roomId as string, username, pw as string).then(async (data) => {
+                if(!data.data) {
+                    alert('This is a private room!');
+                    router.replace('/rooms');
+                }
+                else {
+                    const room = data.data;
+                    await rtcClient.current.join(room.id, room.rtcToken, username);
+                    rtcClient.current.setMuted(isMuted);
+                    setRoom(data.data);
+                }
+            });
+        }
 
         if(!socket.current) {
             socket.current = io(BASE_URL);
@@ -117,25 +149,20 @@ const RoomPage: NextPage = () => {
                     setMembers(data.members);
                 })
 
+                socket.current?.on('status', data => {
+                    console.log(data);
+                    setPhase(data.status);
+                    if(data.status == 'PERFORMING') {
+                        console.log(room?.liveUrl);
+                        audioEl.current?.play();
+                    }
+                })
+
                 socket.current?.emit('join', {
                     id: roomId,
                     username
                 });
             })
-        }
-
-        if(roomId) {
-            joinRoom(roomId as string, username, pw as string).then(async (data) => {
-                if(!data.data) {
-                    alert('This is a private room!');
-                    router.replace('/rooms');
-                }
-                else {
-                    const room = data.data;
-                    await rtcClient.current.join(room.id, room.rtcToken, username);
-                    rtcClient.current.setMuted(isMuted);
-                }
-            });
         }
     }, []);
 
@@ -146,9 +173,16 @@ const RoomPage: NextPage = () => {
             <Audience members={members} />
 
             <div className="light" style={{
-                opacity: phase=='READY' ? 0.7 : 0
+                opacity: phase=='READY' ? 0.8 : 0
             }}>
             </div>
+            <ReactHlsPlayer 
+                playerRef={audioEl}
+                src={room ? room.liveUrl : ''}
+                hlsConfig={{
+                    lowLatencyMode: true
+                }}
+            />
 
             <div className="controls">
                 {
