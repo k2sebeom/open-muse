@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-export const BASE_URL = 'https://dev.museli.o-r.kr' //'http://127.0.0.1:8000';
+export const BASE_URL = 'https://dev.museli.o-r.kr'; //'http://127.0.0.1:8000';
 
 export async function getRoomList() {
   try {

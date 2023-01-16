@@ -41,9 +41,11 @@ const AudioCall = ({
     } else {
       console.log('Joining');
       if (room.rtcToken) {
-        rtcClient.current.join(`${room.id}`, room.rtcToken, username).then(() => {
-          rtcClient.current.setMuted(true);
-        });
+        rtcClient.current
+          .join(`${room.id}`, room.rtcToken, username)
+          .then(() => {
+            rtcClient.current.setMuted(true);
+          });
       }
     }
   }, [room]);
