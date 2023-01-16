@@ -77,7 +77,7 @@ class RtcClient {
         t.track.play();
       })
     } else {
-      this.localAudioTrack?.setMuted(false);
+      this.localAudioTrack?.setMuted(true);
       this.remoteAudioTracks.forEach(t => {
         t.track.stop();
       })
