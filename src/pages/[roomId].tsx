@@ -398,10 +398,10 @@ const RoomPage: NextPage<RoomPageProps> = ({ title, description } : RoomPageProp
 };
 
 
-const getServerSideProps: GetServerSideProps<RoomPageProps> = async (context) => {
+export const getServerSideProps: GetServerSideProps<RoomPageProps> = async (context) => {
   const { roomId } = context.query;
   const { data: room } = await getRoom(roomId as string);
-
+  
   if(room) {
     return {
       props: {
