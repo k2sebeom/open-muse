@@ -95,6 +95,9 @@ const RoomPage: NextPage = () => {
   const audioEl = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
+    if(!router.isReady) {
+      return;
+    }
     const username = localStorage.getItem('username');
     console.log(router.query);
     if (!username) {
@@ -185,7 +188,7 @@ const RoomPage: NextPage = () => {
         });
       });
     }
-  }, []);
+  }, [router.isReady]);
 
   useEffect(() => {
     const onPageChange = () => {
