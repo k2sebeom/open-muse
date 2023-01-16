@@ -140,6 +140,7 @@ const RoomPage: NextPage = () => {
         });
 
         socket.current?.on('status', (data) => {
+          console.log(data);
           if (phase === data.status) {
             return;
           }
@@ -211,6 +212,9 @@ const RoomPage: NextPage = () => {
         }
         audioEl.current?.play();
       }
+      if (room) {
+        setPlayUrl(room.liveUrl);
+      }
     } else if (phase === 'CHATTING') {
       setPerformer(null);
       setPlayUrl('');
@@ -233,7 +237,7 @@ const RoomPage: NextPage = () => {
       <ReactHlsPlayer
         playerRef={audioEl}
         src={playUrl}
-        autoPlay={false}
+        autoPlay={true}
         hlsConfig={{
           defaultAudioCodec: 'mp4a.40.2',
           minAutoBitrate: 128000,
