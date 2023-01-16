@@ -8,16 +8,14 @@ type LogoProps = {
 const Logo = ({ fontSize = 80, onClick }: LogoProps) => {
   return (
     <>
-      <div className='container'
-        onClick={onClick}
-      >
+      <div className="container" onClick={onClick}>
         <h1 id="open">Open</h1>
         <h1 id="muse">Muse</h1>
       </div>
 
       <style jsx>{`
         .container {
-          cursor: ${!onClick ? 'default' : 'pointer' }
+          cursor: ${!onClick ? 'default' : 'pointer'};
         }
 
         h1 {

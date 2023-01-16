@@ -2,10 +2,9 @@ import { useRouter } from 'next/router';
 import React from 'react';
 import Logo from './Logo';
 
-
 type HeaderProps = {
-  username?: string
-}
+  username?: string;
+};
 
 function Header({ username }: HeaderProps) {
   const router = useRouter();
@@ -13,9 +12,12 @@ function Header({ username }: HeaderProps) {
   return (
     <>
       <div>
-        <Logo fontSize={30} onClick={() => {
-          router.push('/');
-        }}/>
+        <Logo
+          fontSize={30}
+          onClick={() => {
+            router.push('/');
+          }}
+        />
         <p>Welcome {username}</p>
       </div>
       <style jsx>{`

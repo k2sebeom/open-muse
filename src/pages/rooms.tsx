@@ -28,7 +28,7 @@ const Cell = ({ children }: CellProps) => {
         borderRight: '1px solid #BE92FF',
         color: '#FFF',
       }}
-      align='center'
+      align="center"
     >
       {children}
     </TableCell>
@@ -56,20 +56,20 @@ const RoomTableHead = () => {
         <Cell></Cell>
       </TableRow>
     </TableHead>
-  )
-}
+  );
+};
 
 type RoomTableRowProps = {
-  room: Room
-}
+  room: Room;
+};
 
-const RoomTableRow = ({room}: RoomTableRowProps) => {
+const RoomTableRow = ({ room }: RoomTableRowProps) => {
   const router = useRouter();
   return (
     <TableRow
       sx={{
         backgroundColor: '#6700FF',
-        opacity: '70%'
+        opacity: '70%',
       }}
     >
       <Cell>{room.title}</Cell>
@@ -77,14 +77,17 @@ const RoomTableRow = ({room}: RoomTableRowProps) => {
       <Cell>{room.mode}</Cell>
       <Cell>{room.members}</Cell>
       <Cell>
-        <RoundButton title="Join" onClick={() => {
-          router.push(`/${room.id}`);
-        }} backgroundColor='blue' />
+        <RoundButton
+          title="Join"
+          onClick={() => {
+            router.push(`/${room.id}`);
+          }}
+          backgroundColor="blue"
+        />
       </Cell>
     </TableRow>
-  )
-}
-
+  );
+};
 
 const Rooms: NextPage = () => {
   const router = useRouter();
@@ -94,26 +97,29 @@ const Rooms: NextPage = () => {
 
   useEffect(() => {
     const username = localStorage.getItem('username');
-    if(!username) {
+    if (!username) {
       router.replace('/');
-    }
-    else {
+    } else {
       setUsername(username);
     }
-    getRoomList().then(data => {
+    getRoomList().then((data) => {
       setRooms(data.data);
-    })
+    });
   }, []);
 
   return (
     <div>
       <Header username={username} />
-      <div className='tableHeader'>
-        <InputField width='300px' placeholder='search' />
+      <div className="tableHeader">
+        <InputField width="300px" placeholder="search" />
         <div style={{ width: 10 }}></div>
-        <RoundButton title='Create' width={120}  onClick={() => {
-          router.push('/create');
-        }}/>
+        <RoundButton
+          title="Create"
+          width={120}
+          onClick={() => {
+            router.push('/create');
+          }}
+        />
       </div>
       <div className="tableContainer">
         <Table
@@ -121,12 +127,10 @@ const Rooms: NextPage = () => {
             width: '100%',
           }}
         >
-          <RoomTableHead /> 
+          <RoomTableHead />
           <TableBody>
             {rooms.map((room: Room, idx: number) => {
-              return (
-                <RoomTableRow room={room} key={`room-row-${idx}`} />
-              )
+              return <RoomTableRow room={room} key={`room-row-${idx}`} />;
             })}
           </TableBody>
         </Table>
@@ -138,11 +142,11 @@ const Rooms: NextPage = () => {
         }
 
         .tableHeader {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            margin-left: 10px;
-            margin-right: 10px;
+          display: flex;
+          align-items: center;
+          justify-content: flex-end;
+          margin-left: 10px;
+          margin-right: 10px;
         }
       `}</style>
     </div>

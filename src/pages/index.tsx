@@ -17,12 +17,12 @@ const Home: NextPage = () => {
   useEffect(() => {
     const username = localStorage.getItem('username');
     const email = localStorage.getItem('email');
-    if(username && email) {
+    if (username && email) {
       setEmail(email);
       setUsername(username);
     }
-    localStorage.removeItem('email');   
-    localStorage.removeItem('username');    
+    localStorage.removeItem('email');
+    localStorage.removeItem('username');
   });
 
   return (
@@ -36,7 +36,11 @@ const Home: NextPage = () => {
         <Logo />
         <p>Join Now</p>
         <InputField value={email} onChange={setEmail} placeholder="email" />
-        <InputField value={username} onChange={setUsername} placeholder="nickname" />
+        <InputField
+          value={username}
+          onChange={setUsername}
+          placeholder="nickname"
+        />
 
         <RoundButton
           title="Enter"
