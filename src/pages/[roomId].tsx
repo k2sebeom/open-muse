@@ -200,6 +200,9 @@ const RoomPage: NextPage = () => {
           setPlayUrl(room.liveUrl);
         }
       }
+      if(!performer) {
+        setPerformer(data.performer);
+      }
     } else if (data.status === 'CHATTING') {
       setPerformer(null);
       setPlayUrl('');
