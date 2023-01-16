@@ -11,6 +11,15 @@ export async function getRoomList() {
   }
 }
 
+export async function getRoom(id: string) {
+  try {
+    const resp = await axios.get(BASE_URL + `/api/room/${id}`);
+    return resp.data;
+  } catch {
+    return { data: null };
+  }
+}
+
 export async function createRoom(
   title: string,
   description: string,

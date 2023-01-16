@@ -1,17 +1,18 @@
 import { Grid } from '@mui/material';
-import { NextPage } from 'next';
+import { GetServerSideProps, NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import Header from '../components/Header';
 import Profile from '../components/Profile';
 import RoundButton from '../components/RoundButton';
-import { BASE_URL, joinRoom } from '../lib/api';
+import { BASE_URL, getRoom, joinRoom } from '../lib/api';
 
 import dynamic from 'next/dynamic';
 const ReactHlsPlayer = dynamic(import('react-hls-player/dist'), { ssr: false });
 const AudioCall = dynamic(import('../components/AudioCall'), { ssr: false });
 import { Room } from '../@types/rooms';
+import Head from 'next/head';
 
 type StageProps = {
   performer: string | null;
@@ -69,7 +70,12 @@ const Audience = ({ members, performer }: AudienceProps) => {
   );
 };
 
-const RoomPage: NextPage = () => {
+type RoomPageProps = {
+  title: string,
+  description: string
+}
+
+const RoomPage: NextPage<RoomPageProps> = ({ title, description } : RoomPageProps) => {
   const router = useRouter();
 
   const { roomId, pw } = router.query;
@@ -300,6 +306,13 @@ const RoomPage: NextPage = () => {
 
   return (
     <div>
+      <Head>
+        <title>{`${title}-OpenMuse`}</title>
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:image" content='https://uploads-ssl.webflow.com/62e9c64d4b368567d3527841/630058482da10f931a5b50d1_Screen%20Shot%202022-08-19%20at%2011.40.44%20PM-p-1600.png' />
+      </Head>
+
       <Header username={username} />
       <Stage performer={performer} />
       <Audience members={members} performer={performer} />
@@ -383,5 +396,25 @@ const RoomPage: NextPage = () => {
     </div>
   );
 };
+
+
+const getServerSideProps: GetServerSideProps<RoomPageProps> = async (context) => {
+  const { roomId } = context.query;
+  const { data: room } = await getRoom(roomId as string);
+
+  if(room) {
+    return {
+      props: {
+        title: room.title,
+        description: room.description
+      }
+    }
+  }
+  else {
+    return {
+      notFound: true
+    }
+  }
+}
 
 export default RoomPage;
