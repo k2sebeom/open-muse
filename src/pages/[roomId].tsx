@@ -93,6 +93,7 @@ const RoomPage: NextPage = () => {
 
     const [phase, setPhase] = useState<'READY' | 'PERFORMING' | 'CHATTING'>('CHATTING');
     const [performer, setPerformer] = useState<string | null>(null);
+    const [isStudio, setIsStudio] = useState<boolean>(false);
 
     const [room, setRoom] = useState<Room>();
 
@@ -177,11 +178,19 @@ const RoomPage: NextPage = () => {
                 studioSocket.current?.on('recJoinDeviceCh', data => {
                     console.log(data);
                     studioSocket.current?.emit('reqConnect', {});
+                    setIsStudio(true);
                 })
 
                 studioSocket.current?.on('recHealthCheck', data => {
                     console.log(data);
                     studioSocket.current?.emit('reqConnect', {});
+                    setIsStudio(true);
+                })
+
+                studioSocket.current?.on('recLeaveDeviceCh', data => {
+                    if(data.deviceType === 'macos') {
+                        setIsStudio(false);
+                    }
                 })
                 
                 // Join the device channel
@@ -249,15 +258,26 @@ const RoomPage: NextPage = () => {
                     )
                 }
                 {
-                    !performer ? (
+                    !performer && isStudio ? (
                         <RoundButton onClick={() => {
                             socket.current?.emit('perform', {
                                 username
                             });
+                            studioSocket.current?.emit('reqStream', {
+                                streamKey: room?.streamKey
+                            })
                             setPerformer(username);
                             setPhase('READY');
                         }} title='Go on Stage' />
-                    ) : null
+                    ) : (
+                        username === performer ? (
+                            <RoundButton onClick={() => {
+                                studioSocket.current?.emit('reqStreamEnded', {});
+                                setPerformer(null);
+                                setPhase('CHATTING');
+                            }} title='Leave Stage' />
+                        ) : null
+                    )
                 }
                 
             </div>
