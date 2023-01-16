@@ -18,8 +18,6 @@ class RtcClient {
   private localAudioTrack: IMicrophoneAudioTrack | null = null;
   private remoteAudioTracks: RemoteTrack[] = [];
 
-  private isMuted: boolean = false;
-
   constructor() {
     this.engine = AgoraRTC.createClient({
       mode: 'rtc',
@@ -67,14 +65,18 @@ class RtcClient {
 
   public setMuted(muted: boolean) {
     this.localAudioTrack?.setMuted(muted);
-    this.isMuted = muted;
   }
 
   public setEnabled(enabled: boolean) {
+    this.localAudioTrack?.setEnabled(enabled);
     if (enabled) {
-      this.localAudioTrack?.setMuted(this.isMuted);
+      this.remoteAudioTracks.forEach(t => {
+        t.track.play();
+      })
     } else {
-      this.localAudioTrack?.setMuted(false);
+      this.remoteAudioTracks.forEach(t => {
+        t.track.stop();
+      })
     }
   }
 
