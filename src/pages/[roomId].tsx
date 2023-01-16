@@ -9,13 +9,9 @@ import RoundButton from '../components/RoundButton';
 import { BASE_URL, joinRoom } from '../lib/api';
 
 import dynamic from 'next/dynamic';
-const ReactHlsPlayer = dynamic(import('react-hls-player/dist'), { ssr: false } )
-const AudioCall = dynamic(import('../components/AudioCall'), {ssr: false});
-import MicIcon from '@mui/icons-material/Mic';
-import MicOffIcon from '@mui/icons-material/MicOff';
+const ReactHlsPlayer = dynamic(import('react-hls-player/dist'), { ssr: false });
+const AudioCall = dynamic(import('../components/AudioCall'), { ssr: false });
 import { Room } from '../@types/rooms';
-
-
 
 type StageProps = {
   performer: string | null;
@@ -81,7 +77,7 @@ const RoomPage: NextPage = () => {
 
   const [members, setMembers] = useState<string[]>([]);
 
-//   const rtcClient = useRef<RtcClient>(new RtcClient());
+  //   const rtcClient = useRef<RtcClient>(new RtcClient());
   const socket = useRef<Socket | null>(null);
   const studioSocket = useRef<Socket | null>(null);
 
@@ -199,8 +195,8 @@ const RoomPage: NextPage = () => {
     if (phase === 'PERFORMING') {
       console.log(username, performer);
       if (username != performer) {
-        if(room) {
-            setPlayUrl(room.liveUrl);
+        if (room) {
+          setPlayUrl(room.liveUrl);
         }
         audioEl.current?.play();
       }
@@ -222,7 +218,7 @@ const RoomPage: NextPage = () => {
           opacity: phase === 'READY' ? 0.8 : 0,
         }}
       ></div>
-      <AudioCall room={room} username={username} isMuted={isMuted} isEnabled={!performer}/>
+
       <ReactHlsPlayer
         playerRef={audioEl}
         src={playUrl}
@@ -239,58 +235,13 @@ const RoomPage: NextPage = () => {
       />
 
       <div className="controls">
-        {!performer ? (
-          isMuted ? (
-            <RoundButton
-              backgroundColor="black"
-              onClick={() => {
-                setIsMuted(false);
-                // rtcClient.current.setMuted(false);
-              }}
-              width={100}
-              height={50}
-              title=""
-            >
-              <MicOffIcon />
-            </RoundButton>
-          ) : (
-            <RoundButton
-              onClick={() => {
-                setIsMuted(true);
-                // rtcClient.current.setMuted(true);
-              }}
-              width={100}
-              height={50}
-              title=""
-            >
-              <MicIcon />
-            </RoundButton>
-          )
-        ) : null}
-        {!performer && isStudio ? (
-          <RoundButton
-            onClick={() => {
-              socket.current?.emit('perform', {
-                username,
-              });
-              studioSocket.current?.emit('reqStream', {
-                streamKey: room?.streamKey,
-              });
-              setPerformer(username);
-              setPhase('READY');
-            }}
-            title="Go on Stage"
-          />
-        ) : username === performer ? (
-          <RoundButton
-            onClick={() => {
-              studioSocket.current?.emit('reqStreamEnded', {});
-              setPerformer(null);
-              setPhase('CHATTING');
-            }}
-            title="Leave Stage"
-          />
-        ) : null}
+        <AudioCall
+          room={room}
+          username={username}
+          isMuted={isMuted}
+          isEnabled={!performer}
+          setIsMuted={setIsMuted}
+        />
       </div>
 
       <style jsx>{`
