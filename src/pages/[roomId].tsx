@@ -95,7 +95,7 @@ const RoomPage: NextPage = () => {
   const audioEl = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    if(!router.isReady) {
+    if (!router.isReady) {
       return;
     }
     const username = localStorage.getItem('username');
@@ -194,6 +194,8 @@ const RoomPage: NextPage = () => {
     const onPageChange = () => {
       studioSocket.current?.disconnect();
       socket.current?.disconnect();
+      audioEl.current?.pause();
+      setPlayUrl('');
     };
     router.events.on('routeChangeStart', onPageChange);
     return () => {
@@ -252,6 +254,30 @@ const RoomPage: NextPage = () => {
           isEnabled={!performer}
           setIsMuted={setIsMuted}
         />
+        {!performer && isStudio ? (
+          <RoundButton
+            onClick={() => {
+              socket.current?.emit('perform', {
+                username,
+              });
+              studioSocket.current?.emit('reqStream', {
+                streamKey: room?.streamKey,
+              });
+              setPerformer(username);
+              setPhase('READY');
+            }}
+            title="Go on Stage"
+          />
+        ) : username === performer ? (
+          <RoundButton
+            onClick={() => {
+              studioSocket.current?.emit('reqStreamEnded', {});
+              setPerformer(null);
+              setPhase('CHATTING');
+            }}
+            title="Leave Stage"
+          />
+        ) : null}
       </div>
 
       <style jsx>{`
