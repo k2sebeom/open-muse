@@ -39,7 +39,7 @@ class RtcClient {
           uid: user.uid,
           track: user.audioTrack,
         });
-        if(this.isEnabled) {
+        if (this.isEnabled) {
           user.audioTrack.play();
         }
       }

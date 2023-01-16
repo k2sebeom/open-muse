@@ -71,11 +71,14 @@ const Audience = ({ members, performer }: AudienceProps) => {
 };
 
 type RoomPageProps = {
-  title: string,
-  description: string
-}
+  title: string;
+  description: string;
+};
 
-const RoomPage: NextPage<RoomPageProps> = ({ title, description } : RoomPageProps) => {
+const RoomPage: NextPage<RoomPageProps> = ({
+  title,
+  description,
+}: RoomPageProps) => {
   const router = useRouter();
 
   const { roomId, pw } = router.query;
@@ -310,7 +313,10 @@ const RoomPage: NextPage<RoomPageProps> = ({ title, description } : RoomPageProp
         <title>{`${title}-OpenMuse`}</title>
         <meta property="og:title" content={title} />
         <meta property="og:description" content={description} />
-        <meta property="og:image" content='https://uploads-ssl.webflow.com/62e9c64d4b368567d3527841/630058482da10f931a5b50d1_Screen%20Shot%202022-08-19%20at%2011.40.44%20PM-p-1600.png' />
+        <meta
+          property="og:image"
+          content="https://uploads-ssl.webflow.com/62e9c64d4b368567d3527841/630058482da10f931a5b50d1_Screen%20Shot%202022-08-19%20at%2011.40.44%20PM-p-1600.png"
+        />
       </Head>
 
       <Header username={username} />
@@ -397,24 +403,24 @@ const RoomPage: NextPage<RoomPageProps> = ({ title, description } : RoomPageProp
   );
 };
 
-
-export const getServerSideProps: GetServerSideProps<RoomPageProps> = async (context) => {
+export const getServerSideProps: GetServerSideProps<RoomPageProps> = async (
+  context
+) => {
   const { roomId } = context.query;
   const { data: room } = await getRoom(roomId as string);
-  
-  if(room) {
+
+  if (room) {
     return {
       props: {
         title: room.title,
-        description: room.description
-      }
-    }
-  }
-  else {
+        description: room.description,
+      },
+    };
+  } else {
     return {
-      notFound: true
-    }
+      notFound: true,
+    };
   }
-}
+};
 
 export default RoomPage;
