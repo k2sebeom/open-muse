@@ -87,6 +87,7 @@ const RoomPage: NextPage = () => {
 
     const rtcClient = useRef<RtcClient>(new RtcClient());
     const socket = useRef<Socket | null>(null);
+    const studioSocket = useRef<Socket | null>(null);
 
     const [isMuted, setIsMuted] = useState<boolean>(true);
 
@@ -168,6 +169,27 @@ const RoomPage: NextPage = () => {
                 });
             })
         }
+
+        if(!studioSocket.current) { 
+            studioSocket.current = io(BASE_URL + '/studio');
+
+            studioSocket.current.on('connect', () => {
+                studioSocket.current?.on('recJoinDeviceCh', data => {
+                    console.log(data);
+                    studioSocket.current?.emit('reqConnect', {});
+                })
+
+                studioSocket.current?.on('recHealthCheck', data => {
+                    console.log(data);
+                    studioSocket.current?.emit('reqConnect', {});
+                })
+                
+                // Join the device channel
+                studioSocket.current?.emit('reqJoinDeviceCh', {
+                    email, deviceType: 'ios'
+                });
+            })
+        }
     }, []);
 
 
@@ -226,13 +248,18 @@ const RoomPage: NextPage = () => {
                         </RoundButton>
                     )
                 }
-                <RoundButton onClick={() => {
-                    socket.current?.emit('perform', {
-                        username
-                    });
-                    setPerformer(username);
-                    setPhase('READY');
-                }} title='Go on Stage' />
+                {
+                    !performer ? (
+                        <RoundButton onClick={() => {
+                            socket.current?.emit('perform', {
+                                username
+                            });
+                            setPerformer(username);
+                            setPhase('READY');
+                        }} title='Go on Stage' />
+                    ) : null
+                }
+                
             </div>
 
             <style jsx>{`

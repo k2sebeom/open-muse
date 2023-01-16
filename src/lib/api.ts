@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const BASE_URL = 'https://open.museli.o-r.kr';
+export const BASE_URL = 'http://127.0.0.1:8000'
 
 const MUSE_URL = 'https://prod.muse.live';
 
