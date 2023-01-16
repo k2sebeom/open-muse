@@ -78,6 +78,10 @@ class RtcClient {
     }
   }
 
+  public isConnected() {
+    return this.engine.connectionState !== 'DISCONNECTED';
+  }
+
   public async disconnect() {
     this.localAudioTrack?.close();
     await this.engine.leave();

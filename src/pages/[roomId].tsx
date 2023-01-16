@@ -107,10 +107,6 @@ const RoomPage: NextPage = () => {
     if (!email) {
       router.replace('/');
       return;
-    } else {
-      // getStudioToken(email).then(data => {
-      //     console.log(data);
-      // })
     }
 
     if (roomId) {
@@ -189,6 +185,17 @@ const RoomPage: NextPage = () => {
         });
       });
     }
+  }, []);
+
+  useEffect(() => {
+    const onPageChange = () => {
+      studioSocket.current?.disconnect();
+      socket.current?.disconnect();
+    };
+    router.events.on('routeChangeStart', onPageChange);
+    return () => {
+      router.events.off('routeChangeStart', onPageChange);
+    };
   }, []);
 
   useEffect(() => {

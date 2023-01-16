@@ -4,6 +4,7 @@ import RtcClient from '../utils/rtc';
 import RoundButton from './RoundButton';
 import MicIcon from '@mui/icons-material/Mic';
 import MicOffIcon from '@mui/icons-material/MicOff';
+import { useRouter } from 'next/router';
 
 type AudioCallProps = {
   isMuted: boolean;
@@ -21,6 +22,7 @@ const AudioCall = ({
   setIsMuted,
 }: AudioCallProps) => {
   const rtcClient = useRef<RtcClient>(new RtcClient());
+  const router = useRouter();
 
   useEffect(() => {
     rtcClient.current.setMuted(isMuted);
@@ -35,6 +37,7 @@ const AudioCall = ({
   useEffect(() => {
     console.log(room);
     if (!room) {
+      console.log('no room');
     } else {
       console.log('Joining');
       if (room.rtcToken) {
@@ -44,9 +47,16 @@ const AudioCall = ({
   }, [room]);
 
   useEffect(() => {
+    const onPageChange = () => {
+      console.log('page change');
+      if (rtcClient.current.isConnected()) {
+        console.log('Need to cleanup');
+        rtcClient.current.disconnect();
+      }
+    };
+    router.events.on('routeChangeStart', onPageChange);
     return () => {
-      console.log('Unmount');
-      rtcClient.current.disconnect();
+      router.events.off('routeChangeStart', onPageChange);
     };
   }, []);
 
