@@ -128,38 +128,57 @@ const RoomPage: NextPage = () => {
   // const connectStudio = useCallback(())
 
   // Studio sockets
-  useEffect(() => {
-    if (!studioSocket.current) {
-      studioSocket.current = io(BASE_URL + '/studio');
-
-      studioSocket.current.on('connect', () => {
-        studioSocket.current?.on('recJoinDeviceCh', (data) => {
-          console.log(data);
-          studioSocket.current?.emit('reqConnect', {});
-          setIsStudio(true);
-        });
-
-        studioSocket.current?.on('recHealthCheck', (data) => {
-          console.log(data);
-          studioSocket.current?.emit('reqConnect', {});
-          setIsStudio(true);
-        });
-
-        studioSocket.current?.on('recLeaveDeviceCh', (data) => {
-          if (data.deviceType === 'macos') {
-            setIsStudio(false);
-          }
-        });
-
-        // Join the device channel
-        const email = localStorage.getItem('email');
-        studioSocket.current?.emit('reqJoinDeviceCh', {
-          email,
-          deviceType: 'ios',
-        });
-      });
+  const onStudioConnect = useCallback(() => {
+    if(!router.isReady) {
+      return;
     }
-  }, [router.isReady]);
+    const email = localStorage.getItem('email');
+    console.log(email);
+    studioSocket.current?.emit('reqJoinDeviceCh', {
+      email,
+      deviceType: 'ios',
+    });
+  }, [router.isReady, studioSocket]);
+
+  const onStudioJoin = useCallback((data: any) => {
+    console.log(data);
+    if (data.deviceType === 'macos') {
+      studioSocket.current?.emit('reqConnect', {});
+      setIsStudio(true);
+    }
+  }, [setIsStudio, studioSocket.current]);
+
+  const onStudioLeft = useCallback((data: any) => {
+    console.log(data);
+    if (data.deviceType === 'macos') {
+      setIsStudio(false);
+    }
+  }, [setIsStudio]);
+
+  useEffect(() => {
+    if(!router.isReady) {
+      return;
+    }
+    if(!studioSocket.current) {
+      studioSocket.current = io(BASE_URL + '/studio');
+    }
+    studioSocket.current.on('connect', onStudioConnect);
+    return () => {
+      studioSocket.current?.off('connect', onStudioConnect);
+    }
+  }, [socket, onStudioConnect, router.isReady]);
+
+  useEffect(() => {
+    studioSocket.current?.on('recJoinDeviceCh', onStudioJoin);
+    studioSocket.current?.on('recHealthCheck', onStudioJoin);
+    studioSocket.current?.on('recLeaveDeviceCh', onStudioLeft);
+
+    return () => {
+      studioSocket.current?.off('recJoinDeviceCh', onStudioJoin);
+      studioSocket.current?.off('recHealthCheck', onStudioJoin);
+      studioSocket.current?.off('recLeaveDeviceCh', onStudioLeft);
+    }
+  }, [studioSocket.current, onStudioJoin, onStudioLeft]);
 
   // Socket Callbacks
   const onMember = useCallback((data: any) => {
