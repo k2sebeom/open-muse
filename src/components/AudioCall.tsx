@@ -26,12 +26,12 @@ const AudioCall = ({
 
   useEffect(() => {
     rtcClient.current.setMuted(isMuted);
-    console.log('Setting enabled');
+    console.log(`Mute: ${isMuted}`);
   }, [isMuted]);
 
   useEffect(() => {
     rtcClient.current.setEnabled(isEnabled);
-    console.log('Setting enabled');
+    console.log(`Enabled ${isEnabled}`);
   }, [isEnabled]);
 
   useEffect(() => {
@@ -41,7 +41,9 @@ const AudioCall = ({
     } else {
       console.log('Joining');
       if (room.rtcToken) {
-        rtcClient.current.join(`${room.id}`, room.rtcToken, username);
+        rtcClient.current.join(`${room.id}`, room.rtcToken, username).then(() => {
+          rtcClient.current.setMuted(true);
+        });
       }
     }
   }, [room]);

@@ -77,7 +77,6 @@ const RoomPage: NextPage = () => {
 
   const [members, setMembers] = useState<string[]>([]);
 
-  //   const rtcClient = useRef<RtcClient>(new RtcClient());
   const socket = useRef<Socket | null>(null);
   const studioSocket = useRef<Socket | null>(null);
 
@@ -296,7 +295,7 @@ const RoomPage: NextPage = () => {
           width: 100vw;
           height: 100vh;
           position: fixed;
-          top: 0;
+          top: 60px;
           left: 0;
         }
       `}</style>
