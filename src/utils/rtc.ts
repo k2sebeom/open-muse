@@ -19,6 +19,7 @@ class RtcClient {
   private remoteAudioTracks: RemoteTrack[] = [];
 
   private isMuted: boolean = false;
+  private isEnabled: boolean = true;
 
   constructor() {
     this.engine = AgoraRTC.createClient({
@@ -38,7 +39,9 @@ class RtcClient {
           uid: user.uid,
           track: user.audioTrack,
         });
-        user.audioTrack.play();
+        if(this.isEnabled) {
+          user.audioTrack.play();
+        }
       }
     });
 
@@ -82,6 +85,7 @@ class RtcClient {
         t.track.stop();
       });
     }
+    this.isEnabled = enabled;
   }
 
   public isConnected() {
