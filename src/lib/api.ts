@@ -1,8 +1,6 @@
 import axios from 'axios';
 
-export const BASE_URL = 'https://open.museli.o-r.kr' //'http://127.0.0.1:8000';
-
-const MUSE_URL = 'https://prod.muse.live';
+export const BASE_URL = 'https://dev.museli.o-r.kr' //'http://127.0.0.1:8000';
 
 export async function getRoomList() {
   try {
@@ -48,26 +46,6 @@ export async function joinRoom(
       {
         password,
         username,
-      },
-      {
-        headers: {
-          'content-type': 'application/json',
-        },
-      }
-    );
-    return resp.data;
-  } catch {
-    return { data: null };
-  }
-}
-
-export async function getStudioToken(email: string) {
-  try {
-    const resp = await axios.post(
-      MUSE_URL + '/api/auth/email/signin',
-      {
-        platform: 'old-studio',
-        email,
       },
       {
         headers: {
