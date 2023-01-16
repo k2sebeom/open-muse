@@ -1,7 +1,7 @@
 import { Grid } from '@mui/material';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import Header from '../components/Header';
 import Profile from '../components/Profile';
@@ -98,7 +98,6 @@ const RoomPage: NextPage = () => {
       return;
     }
     const username = localStorage.getItem('username');
-    console.log(router.query);
     if (!username) {
       router.replace('/');
       return;
@@ -110,8 +109,11 @@ const RoomPage: NextPage = () => {
       router.replace('/');
       return;
     }
+  }, [router.isReady, setUsername]);
 
-    if (roomId) {
+
+  useEffect(() => {
+    if (roomId && username) {
       joinRoom(roomId as string, username, pw as string).then(async (data) => {
         if (!data.data) {
           alert('This is a private room!');
@@ -121,44 +123,12 @@ const RoomPage: NextPage = () => {
         }
       });
     }
+  }, [router.isReady, username, setRoom]);
 
-    if (!socket.current) {
-      socket.current = io(BASE_URL);
+  // const connectStudio = useCallback(())
 
-      socket.current.on('connect', () => {
-        socket.current?.on('members', (data) => {
-          console.log(data);
-          setMembers(data.members);
-        });
-
-        socket.current?.on('join', (data) => {
-          setMembers(data.members);
-        });
-
-        socket.current?.on('leave', (data) => {
-          setMembers(data.members);
-        });
-
-        socket.current?.on('status', (data) => {
-          console.log(data);
-          if (phase === data.status) {
-            return;
-          }
-          setPhase(data.status);
-        });
-
-        socket.current?.on('perform', (data) => {
-          setPerformer(data.performer);
-          setPhase('READY');
-        });
-
-        socket.current?.emit('join', {
-          id: roomId,
-          username,
-        });
-      });
-    }
-
+  // Studio sockets
+  useEffect(() => {
     if (!studioSocket.current) {
       studioSocket.current = io(BASE_URL + '/studio');
 
@@ -182,6 +152,7 @@ const RoomPage: NextPage = () => {
         });
 
         // Join the device channel
+        const email = localStorage.getItem('email');
         studioSocket.current?.emit('reqJoinDeviceCh', {
           email,
           deviceType: 'ios',
@@ -189,6 +160,85 @@ const RoomPage: NextPage = () => {
       });
     }
   }, [router.isReady]);
+
+  // Socket Callbacks
+  const onMember = useCallback((data: any) => {
+    console.log(data);
+    setMembers(data.members);
+    console.log('socket members')
+  }, [setMembers]);
+
+  const onStatus = useCallback((data: any) => {
+    console.log(data);
+    console.log(phase);
+    if (phase === data.status) {
+      return;
+    }
+    if (data.status === 'PERFORMING') {
+      console.log(username, performer);
+      if (username != performer) {
+        if (room) {
+          setPlayUrl(room.liveUrl);
+        }
+      }
+    } else if (data.status === 'CHATTING') {
+      setPerformer(null);
+      setPlayUrl('');
+    }
+    setPhase(data.status);
+  }, [phase, username, performer, room, setPhase, setPlayUrl, setPerformer, audioEl.current]);
+
+  const onPerform = useCallback((data: any) => {
+    console.log(data);
+    setPerformer(data.performer);
+    setPhase('READY');
+  }, [setPerformer, setPhase]);
+
+  // Join Channel on Connect
+  const onConnect = useCallback(() => {
+    console.log("Socket Connected");
+    socket.current?.emit('join', {
+      id: roomId,
+      username,
+    });
+    console.log("Emiting join");
+  }, [socket, username, router.isReady]);
+
+  useEffect(() => {
+    if(socket.current) {
+      console.log("Setting handlers for real");
+      socket.current.on('members', onMember);
+      socket.current.on('join', onMember);
+      socket.current.on('leave', onMember);
+      socket.current.on('status', onStatus);
+      socket.current.on('perform', onPerform);
+    }
+    
+    return () => {
+      if(socket.current) {
+        console.log("Clearning socket e handler")
+        socket.current.off('members', onMember);
+        socket.current.off('join', onMember);
+        socket.current.off('leave', onMember);
+        socket.current.off('status', onStatus);
+        socket.current.off('perform', onPerform);
+      }
+    }
+  }, [socket.current, onMember, onStatus, onPerform])
+
+  useEffect(() => {
+    if(!router.isReady) {
+      return;
+    }
+    if(!socket.current) {
+      console.log("Socket connecting");
+      socket.current = io(BASE_URL);
+    }
+    socket.current.on('connect', onConnect);
+    return () => {
+      socket.current?.off('connect', onConnect);
+    }
+  }, [socket, onConnect, router.isReady]);
 
   useEffect(() => {
     const onPageChange = () => {
@@ -202,24 +252,6 @@ const RoomPage: NextPage = () => {
       router.events.off('routeChangeStart', onPageChange);
     };
   }, []);
-
-  useEffect(() => {
-    if (phase === 'PERFORMING') {
-      console.log(username, performer);
-      if (username != performer) {
-        if (room) {
-          setPlayUrl(room.liveUrl);
-        }
-        audioEl.current?.play();
-      }
-      if (room) {
-        setPlayUrl(room.liveUrl);
-      }
-    } else if (phase === 'CHATTING') {
-      setPerformer(null);
-      setPlayUrl('');
-    }
-  }, [phase]);
 
   return (
     <div>
