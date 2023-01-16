@@ -271,7 +271,7 @@ const RoomPage: NextPage = () => {
             }}
             title="Go on Stage"
           />
-        ) : username === performer ? (
+        ) : username === performer && phase === 'PERFORMING' ? (
           <RoundButton
             onClick={() => {
               studioSocket.current?.emit('reqStreamEnded', {});
