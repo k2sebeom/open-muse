@@ -207,10 +207,15 @@ const RoomPage: NextPage = () => {
             console.log(username, performer);
             if(username != performer) {
                 audioEl.current?.play();
+                rtcClient.current.setEnabled(false);
             }
         }
         else if(phase === 'CHATTING') {
             setPerformer(null);
+            rtcClient.current.setEnabled(true);
+        }
+        else if(phase === 'READY') {
+            rtcClient.current.setEnabled(false);
         }
     }, [phase]);
 
@@ -241,21 +246,23 @@ const RoomPage: NextPage = () => {
 
             <div className="controls">
                 {
-                    isMuted ? (
-                        <RoundButton backgroundColor="black" onClick={() => {
-                            setIsMuted(false);
-                            rtcClient.current.setMuted(false);
-                        }} width={100} height={50} title="">
-                            <MicOffIcon />
-                        </RoundButton>
-                    ) : (
-                        <RoundButton onClick={() => {
-                            setIsMuted(true);
-                            rtcClient.current.setMuted(true);
-                        }} width={100} height={50} title="">
-                            <MicIcon />
-                        </RoundButton>
-                    )
+                    !performer ? (
+                        isMuted ? (
+                            <RoundButton backgroundColor="black" onClick={() => {
+                                setIsMuted(false);
+                                rtcClient.current.setMuted(false);
+                            }} width={100} height={50} title="">
+                                <MicOffIcon />
+                            </RoundButton>
+                        ) : (
+                            <RoundButton onClick={() => {
+                                setIsMuted(true);
+                                rtcClient.current.setMuted(true);
+                            }} width={100} height={50} title="">
+                                <MicIcon />
+                            </RoundButton>
+                        )
+                    ) : null
                 }
                 {
                     !performer && isStudio ? (
