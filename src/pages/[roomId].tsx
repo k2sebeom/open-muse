@@ -90,6 +90,7 @@ const RoomPage: NextPage = () => {
   const [phase, setPhase] = useState<'READY' | 'PERFORMING' | 'CHATTING'>(
     'CHATTING'
   );
+  const [playUrl, setPlayUrl] = useState<string>('');
   const [performer, setPerformer] = useState<string | null>(null);
   const [isStudio, setIsStudio] = useState<boolean>(false);
 
@@ -201,12 +202,16 @@ const RoomPage: NextPage = () => {
     if (phase === 'PERFORMING') {
       console.log(username, performer);
       if (username != performer) {
+        if(room) {
+            setPlayUrl(room.liveUrl);
+        }
         audioEl.current?.play();
         // rtcClient.current.setEnabled(false);
       }
     } else if (phase === 'CHATTING') {
       setPerformer(null);
     //   rtcClient.current.setEnabled(true);
+      setPlayUrl('');
     } else if (phase === 'READY') {
     //   rtcClient.current.setEnabled(false);
     }
@@ -227,7 +232,7 @@ const RoomPage: NextPage = () => {
       <AudioCall />
       <ReactHlsPlayer
         playerRef={audioEl}
-        src={room ? room.liveUrl : ''}
+        src={playUrl}
         autoPlay={false}
         hlsConfig={{
           defaultAudioCodec: 'mp4a.40.2',
