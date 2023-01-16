@@ -77,6 +77,11 @@ class RtcClient {
       this.localAudioTrack?.setMuted(false);
     }
   }
+
+  public async disconnect() {
+    this.localAudioTrack?.close();
+    await this.engine.leave();
+  }
 }
 
 export default RtcClient;

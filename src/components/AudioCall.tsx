@@ -36,6 +36,13 @@ const AudioCall = ({ isMuted, isEnabled, room, username }: AudioCallProps) => {
       }
     }, [room]);
 
+    useEffect(() => {
+      return () => {
+        console.log("Unmount");
+        rtcClient.current.disconnect();
+      }
+    }, []);
+
     return (
         <div></div>
     )
