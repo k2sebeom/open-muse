@@ -47,7 +47,7 @@ const Stage = ({ performer}: StageProps) => {
 
 type AudienceProps = {
     members: string[],
-    performer?: string
+    performer: string | null
 }
 
 const Audience = ({ members , performer }: AudienceProps) => {
@@ -155,16 +155,11 @@ const RoomPage: NextPage = () => {
                         return;
                     }
                     setPhase(data.status);
-                    if(data.status === 'PERFORMING') {
-                        audioEl.current?.play();
-                    }
-                    else if(data.status === 'CHATTING') {
-                        setPerformer(null);
-                    }
                 })
 
                 socket.current?.on('perform', data => {
                     setPerformer(data.performer);
+                    setPhase('READY');
                 })
 
                 socket.current?.emit('join', {
@@ -174,6 +169,19 @@ const RoomPage: NextPage = () => {
             })
         }
     }, []);
+
+
+    useEffect(() => {
+        if(phase === 'PERFORMING') {
+            console.log(username, performer);
+            if(username != performer) {
+                audioEl.current?.play();
+            }
+        }
+        else if(phase === 'CHATTING') {
+            setPerformer(null);
+        }
+    }, [phase]);
 
     return (
         <div>
@@ -188,7 +196,10 @@ const RoomPage: NextPage = () => {
             <ReactHlsPlayer 
                 playerRef={audioEl}
                 src={room ? room.liveUrl : ''}
+                autoPlay={false}
                 hlsConfig={{
+                    defaultAudioCodec: 'mp4a.40.2',
+                    minAutoBitrate: 128000,
                     lowLatencyMode: true
                 }}
                 onEnded={() => {
@@ -220,6 +231,7 @@ const RoomPage: NextPage = () => {
                         username
                     });
                     setPerformer(username);
+                    setPhase('READY');
                 }} title='Go on Stage' />
             </div>
 
