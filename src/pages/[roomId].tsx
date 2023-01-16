@@ -310,7 +310,7 @@ const RoomPage: NextPage<RoomPageProps> = ({
   return (
     <div>
       <Head>
-        <title>{`${title}-OpenMuse`}</title>
+        <title>{`${title} - OpenMuse`}</title>
         <meta property="og:title" content={title} />
         <meta property="og:description" content={description} />
         <meta
