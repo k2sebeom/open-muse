@@ -111,7 +111,6 @@ const RoomPage: NextPage = () => {
     }
   }, [router.isReady, setUsername]);
 
-
   useEffect(() => {
     if (roomId && username) {
       joinRoom(roomId as string, username, pw as string).then(async (data) => {
@@ -129,7 +128,7 @@ const RoomPage: NextPage = () => {
 
   // Studio sockets
   const onStudioConnect = useCallback(() => {
-    if(!router.isReady) {
+    if (!router.isReady) {
       return;
     }
     const email = localStorage.getItem('email');
@@ -140,32 +139,38 @@ const RoomPage: NextPage = () => {
     });
   }, [router.isReady, studioSocket]);
 
-  const onStudioJoin = useCallback((data: any) => {
-    console.log(data);
-    if (data.deviceType === 'macos') {
-      studioSocket.current?.emit('reqConnect', {});
-      setIsStudio(true);
-    }
-  }, [setIsStudio, studioSocket.current]);
+  const onStudioJoin = useCallback(
+    (data: any) => {
+      console.log(data);
+      if (data.deviceType === 'macos') {
+        studioSocket.current?.emit('reqConnect', {});
+        setIsStudio(true);
+      }
+    },
+    [setIsStudio, studioSocket.current]
+  );
 
-  const onStudioLeft = useCallback((data: any) => {
-    console.log(data);
-    if (data.deviceType === 'macos') {
-      setIsStudio(false);
-    }
-  }, [setIsStudio]);
+  const onStudioLeft = useCallback(
+    (data: any) => {
+      console.log(data);
+      if (data.deviceType === 'macos') {
+        setIsStudio(false);
+      }
+    },
+    [setIsStudio]
+  );
 
   useEffect(() => {
-    if(!router.isReady) {
+    if (!router.isReady) {
       return;
     }
-    if(!studioSocket.current) {
+    if (!studioSocket.current) {
       studioSocket.current = io(BASE_URL + '/studio');
     }
     studioSocket.current.on('connect', onStudioConnect);
     return () => {
       studioSocket.current?.off('connect', onStudioConnect);
-    }
+    };
   }, [socket, onStudioConnect, router.isReady]);
 
   useEffect(() => {
@@ -177,89 +182,107 @@ const RoomPage: NextPage = () => {
       studioSocket.current?.off('recJoinDeviceCh', onStudioJoin);
       studioSocket.current?.off('recHealthCheck', onStudioJoin);
       studioSocket.current?.off('recLeaveDeviceCh', onStudioLeft);
-    }
+    };
   }, [studioSocket.current, onStudioJoin, onStudioLeft]);
 
   // Socket Callbacks
-  const onMember = useCallback((data: any) => {
-    console.log(data);
-    setMembers(data.members);
-    console.log('socket members')
-  }, [setMembers]);
+  const onMember = useCallback(
+    (data: any) => {
+      console.log(data);
+      setMembers(data.members);
+      console.log('socket members');
+    },
+    [setMembers]
+  );
 
-  const onStatus = useCallback((data: any) => {
-    console.log(data);
-    console.log(phase);
-    if (phase === data.status) {
-      return;
-    }
-    if (data.status === 'PERFORMING') {
-      console.log(username, performer);
-      if (username != performer) {
-        if (room) {
-          setPlayUrl(room.liveUrl);
+  const onStatus = useCallback(
+    (data: any) => {
+      console.log(data);
+      console.log(phase);
+      if (phase === data.status) {
+        return;
+      }
+      if (data.status === 'PERFORMING') {
+        console.log(username, performer);
+        if (username != performer) {
+          if (room) {
+            setPlayUrl(room.liveUrl);
+          }
         }
+        if (!performer) {
+          setPerformer(data.performer);
+        }
+      } else if (data.status === 'CHATTING') {
+        setPerformer(null);
+        setPlayUrl('');
       }
-      if(!performer) {
-        setPerformer(data.performer);
-      }
-    } else if (data.status === 'CHATTING') {
-      setPerformer(null);
-      setPlayUrl('');
-    }
-    setPhase(data.status);
-  }, [phase, username, performer, room, setPhase, setPlayUrl, setPerformer, audioEl.current]);
+      setPhase(data.status);
+    },
+    [
+      phase,
+      username,
+      performer,
+      room,
+      setPhase,
+      setPlayUrl,
+      setPerformer,
+      audioEl.current,
+    ]
+  );
 
-  const onPerform = useCallback((data: any) => {
-    console.log(data);
-    setPerformer(data.performer);
-    setPhase('READY');
-  }, [setPerformer, setPhase]);
+  const onPerform = useCallback(
+    (data: any) => {
+      console.log(data);
+      setPerformer(data.performer);
+      setPhase('READY');
+    },
+    [setPerformer, setPhase]
+  );
 
   // Join Channel on Connect
   const onConnect = useCallback(() => {
-    console.log("Socket Connected");
+    console.log('Socket Connected');
     socket.current?.emit('join', {
       id: roomId,
       username,
     });
-    console.log("Emiting join");
+    console.log('Emiting join');
   }, [socket, username, router.isReady]);
 
   useEffect(() => {
-    if(socket.current) {
-      console.log("Setting handlers for real");
+    if (socket.current) {
+      console.log('Setting handlers for real');
       socket.current.on('members', onMember);
       socket.current.on('join', onMember);
       socket.current.on('leave', onMember);
       socket.current.on('status', onStatus);
       socket.current.on('perform', onPerform);
     }
-    
+
     return () => {
-      if(socket.current) {
-        console.log("Clearning socket e handler")
+      if (socket.current) {
+        console.log('Clearning socket e handler');
         socket.current.off('members', onMember);
         socket.current.off('join', onMember);
         socket.current.off('leave', onMember);
         socket.current.off('status', onStatus);
         socket.current.off('perform', onPerform);
       }
-    }
-  }, [socket.current, onMember, onStatus, onPerform])
+    };
+  }, [socket.current, onMember, onStatus, onPerform]);
 
   useEffect(() => {
-    if(!router.isReady) {
+    if (!router.isReady) {
       return;
     }
-    if(!socket.current) {
-      console.log("Socket connecting");
+    if (!socket.current) {
+      console.log('Socket connecting');
       socket.current = io(BASE_URL);
     }
     socket.current.on('connect', onConnect);
     return () => {
       socket.current?.off('connect', onConnect);
-    }
+    };
   }, [socket, onConnect, router.isReady]);
 
   useEffect(() => {

@@ -73,14 +73,14 @@ class RtcClient {
   public setEnabled(enabled: boolean) {
     if (enabled) {
       this.localAudioTrack?.setMuted(this.isMuted);
-      this.remoteAudioTracks.forEach(t => {
+      this.remoteAudioTracks.forEach((t) => {
         t.track.play();
-      })
+      });
     } else {
       this.localAudioTrack?.setMuted(true);
-      this.remoteAudioTracks.forEach(t => {
+      this.remoteAudioTracks.forEach((t) => {
         t.track.stop();
-      })
+      });
     }
   }
 
