@@ -123,9 +123,6 @@ const RoomPage: NextPage = () => {
           alert('This is a private room!');
           router.replace('/rooms');
         } else {
-          const room = data.data;
-        //   await rtcClient.current.join(room.id, room.rtcToken, username);
-        //   rtcClient.current.setMuted(isMuted);
           setRoom(data.data);
         }
       });
@@ -206,14 +203,10 @@ const RoomPage: NextPage = () => {
             setPlayUrl(room.liveUrl);
         }
         audioEl.current?.play();
-        // rtcClient.current.setEnabled(false);
       }
     } else if (phase === 'CHATTING') {
       setPerformer(null);
-    //   rtcClient.current.setEnabled(true);
       setPlayUrl('');
-    } else if (phase === 'READY') {
-    //   rtcClient.current.setEnabled(false);
     }
   }, [phase]);
 
@@ -229,7 +222,7 @@ const RoomPage: NextPage = () => {
           opacity: phase === 'READY' ? 0.8 : 0,
         }}
       ></div>
-      <AudioCall />
+      <AudioCall room={room} username={username} isMuted={isMuted} isEnabled={!performer}/>
       <ReactHlsPlayer
         playerRef={audioEl}
         src={playUrl}
