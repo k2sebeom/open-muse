@@ -215,8 +215,7 @@ const RoomPage: NextPage<RoomPageProps> = ({
         if (username != performer) {
           if (room) {
             setPlayUrl(room.liveUrl);
-          }
-          else {
+          } else {
             setPhase('READY');
           }
         }
