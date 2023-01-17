@@ -162,9 +162,7 @@ const RoomPage: NextPage<RoomPageProps> = ({
   const onStudioLeft = useCallback(
     (data: any) => {
       console.log(data);
-      if (data.deviceType === 'macos') {
-        setIsStudio(false);
-      }
+      setIsStudio(false);
     },
     [setIsStudio]
   );
@@ -211,11 +209,15 @@ const RoomPage: NextPage<RoomPageProps> = ({
       if (phase === data.status) {
         return;
       }
+      setPhase(data.status);
       if (data.status === 'PERFORMING') {
         console.log(username, performer);
         if (username != performer) {
           if (room) {
             setPlayUrl(room.liveUrl);
+          }
+          else {
+            setPhase('READY');
           }
         }
         if (!performer) {
@@ -225,7 +227,6 @@ const RoomPage: NextPage<RoomPageProps> = ({
         setPerformer(null);
         setPlayUrl('');
       }
-      setPhase(data.status);
     },
     [
       phase,
