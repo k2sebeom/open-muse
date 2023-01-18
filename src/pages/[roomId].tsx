@@ -9,7 +9,7 @@ import RoundButton from '../components/RoundButton';
 import { BASE_URL, getRoom, joinRoom } from '../lib/api';
 
 import dynamic from 'next/dynamic';
-const ReactHlsPlayer = dynamic(import('react-hls-player/dist'), { ssr: false });
+import MuxPlayer from '@mux/mux-player-react';
 const AudioCall = dynamic(import('../components/AudioCall'), { ssr: false });
 import { Room } from '../@types/rooms';
 import Head from 'next/head';
@@ -338,24 +338,17 @@ const RoomPage: NextPage<RoomPageProps> = ({
         }}
       ></div>
 
-      <ReactHlsPlayer
-        playerRef={audioEl}
-        src={playUrl}
+      <MuxPlayer
         autoPlay={true}
-        hlsConfig={{
-          lowLatencyMode: false,
-          manifestLoadingTimeOut: 1000,
-          manifestLoadingMaxRetry: 1,
-          manifestLoadingMaxRetryTimeout: 1000,
-          fragLoadingTimeOut: 1000,
-          fragLoadingMaxRetry: 1,
-          fragLoadingRetryDelay: 1000,
-          fragLoadingMaxRetryTimeout: 1000,
-        }}
+        playbackId={playUrl}
+        streamType='ll-live'
         onEnded={() => {
           setPerformer('');
           setPhase('CHATTING');
           setPlayUrl('');
+        }}
+        style={{
+          visibility: 'hidden'
         }}
       />
 
