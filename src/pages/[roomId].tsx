@@ -216,12 +216,12 @@ const RoomPage: NextPage<RoomPageProps> = ({
           setPerformer(data.performer);
         }
       } else if (data.status === 'CHATTING') {
-        if(phase === 'READY') {
+        if (phase === 'READY') {
           setPerformer(null);
           setPlayUrl('');
         }
-      } else if(data.status === 'READY' ) {
-        if(!performer) {
+      } else if (data.status === 'READY') {
+        if (!performer) {
           setPerformer(data.performer);
         }
       }
@@ -333,14 +333,14 @@ const RoomPage: NextPage<RoomPageProps> = ({
         volume={performer === username ? 0 : 1}
         autoPlay={true}
         playbackId={playUrl}
-        streamType='ll-live'
+        streamType="ll-live"
         onEnded={() => {
           setPerformer('');
           setPhase('CHATTING');
           setPlayUrl('');
         }}
         style={{
-          visibility: 'hidden'
+          visibility: 'hidden',
         }}
       />
 
