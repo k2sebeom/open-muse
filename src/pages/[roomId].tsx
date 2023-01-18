@@ -91,7 +91,7 @@ const RoomPage: NextPage<RoomPageProps> = ({
 
   const [isMuted, setIsMuted] = useState<boolean>(true);
 
-  const [phase, setPhase] = useState<'READY' | 'PERFORMING' | 'CHATTING' | 'WAITING'>(
+  const [phase, setPhase] = useState<'READY' | 'PERFORMING' | 'CHATTING'>(
     'CHATTING'
   );
   const [playUrl, setPlayUrl] = useState<string>('');
@@ -211,12 +211,7 @@ const RoomPage: NextPage<RoomPageProps> = ({
       }
       setPhase(data.status);
       if (data.status === 'PERFORMING') {
-        if(phase === 'WAITING') {
-          return;
-        }
-        if (username != performer) {
-          setPlayUrl(data.playUrl);
-        }
+        setPlayUrl(data.playUrl);
         if (!performer) {
           setPerformer(data.performer);
         }
@@ -335,6 +330,7 @@ const RoomPage: NextPage<RoomPageProps> = ({
       ></div>
 
       <MuxPlayer
+        volume={performer === username ? 0 : 1}
         autoPlay={true}
         playbackId={playUrl}
         streamType='ll-live'
@@ -370,12 +366,11 @@ const RoomPage: NextPage<RoomPageProps> = ({
             }}
             title="Go on Stage"
           />
-        ) : username === performer && phase === 'PERFORMING' ? (
+        ) : phase === 'PERFORMING' && username === performer ? (
           <RoundButton
             onClick={() => {
+              setPhase('CHATTING');
               studioSocket.current?.emit('reqStreamEnded', {});
-              setPerformer(null);
-              setPhase('WAITING');
             }}
             title="Leave Stage"
           />
