@@ -91,7 +91,7 @@ const RoomPage: NextPage<RoomPageProps> = ({
 
   const [isMuted, setIsMuted] = useState<boolean>(true);
 
-  const [phase, setPhase] = useState<'READY' | 'PERFORMING' | 'CHATTING'>(
+  const [phase, setPhase] = useState<'READY' | 'PERFORMING' | 'CHATTING' | 'WAITING'>(
     'CHATTING'
   );
   const [playUrl, setPlayUrl] = useState<string>('');
@@ -211,7 +211,9 @@ const RoomPage: NextPage<RoomPageProps> = ({
       }
       setPhase(data.status);
       if (data.status === 'PERFORMING') {
-        console.log(username, performer);
+        if(phase === 'WAITING') {
+          return;
+        }
         if (username != performer) {
           if (room) {
             setPlayUrl(room.liveUrl);
@@ -223,8 +225,14 @@ const RoomPage: NextPage<RoomPageProps> = ({
           setPerformer(data.performer);
         }
       } else if (data.status === 'CHATTING') {
-        setPerformer(null);
-        setPlayUrl('');
+        if(phase === 'READY') {
+          setPerformer(null);
+          setPlayUrl('');
+        }
+      } else if(data.status === 'READY' ) {
+        if(!performer) {
+          setPerformer(data.performer);
+        }
       }
     },
     [
@@ -335,13 +343,19 @@ const RoomPage: NextPage<RoomPageProps> = ({
         src={playUrl}
         autoPlay={true}
         hlsConfig={{
-          defaultAudioCodec: 'mp4a.40.2',
-          minAutoBitrate: 128000,
-          lowLatencyMode: true,
+          lowLatencyMode: false,
+          manifestLoadingTimeOut: 1000,
+          manifestLoadingMaxRetry: 1,
+          manifestLoadingMaxRetryTimeout: 1000,
+          fragLoadingTimeOut: 1000,
+          fragLoadingMaxRetry: 1,
+          fragLoadingRetryDelay: 1000,
+          fragLoadingMaxRetryTimeout: 1000,
         }}
         onEnded={() => {
           setPerformer('');
           setPhase('CHATTING');
+          setPlayUrl('');
         }}
       />
 
@@ -372,7 +386,7 @@ const RoomPage: NextPage<RoomPageProps> = ({
             onClick={() => {
               studioSocket.current?.emit('reqStreamEnded', {});
               setPerformer(null);
-              setPhase('CHATTING');
+              setPhase('WAITING');
             }}
             title="Leave Stage"
           />
